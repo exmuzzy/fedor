@@ -139,7 +139,7 @@ def parse_pdf_file(pdf_path):
                         
                         if 'Наименование' in str(header) and 'техническ' in str(header).lower():
                             name_col = col_idx
-                        elif 'коли' in header_str.lower() or 'количество' in header_str.lower():
+                        elif 'коли' in header_str.lower() or 'количество' in header_str.lower() or ('оли' in header_str.lower() and 'ство' in header_str.lower()):
                             # Проверяем, не объединен ли столбец с единицей измерения
                             if 'единиц' in header_str.lower() or 'измер' in header_str.lower():
                                 unit_qty_col = col_idx
@@ -160,9 +160,21 @@ def parse_pdf_file(pdf_path):
                         quantity = ''
                         if qty_col is not None and qty_col < len(row):
                             quantity = row[qty_col]
+                            # Проверяем, не разбито ли количество на два столбца (целая и дробная часть)
+                            if quantity and qty_col + 2 < len(row):
+                                next_cell = row[qty_col + 2]
+                                if next_cell and str(next_cell).strip().startswith(','):
+                                    # Объединяем целую и дробную часть
+                                    quantity = str(quantity) + str(next_cell).strip()
                         elif unit_qty_col is not None and unit_qty_col < len(row):
                             # Количество объединено с единицей измерения
                             quantity = row[unit_qty_col]
+                            # Проверяем, не разбито ли количество на два столбца
+                            if quantity and unit_qty_col + 2 < len(row):
+                                next_cell = row[unit_qty_col + 2]
+                                if next_cell and str(next_cell).strip().startswith(','):
+                                    # Объединяем целую и дробную часть
+                                    quantity = str(quantity) + str(next_cell).strip()
                         
                         manufacturer = row[manufacturer_col] if manufacturer_col is not None else ''
                         
