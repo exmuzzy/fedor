@@ -17,12 +17,21 @@
 
 ## ⚡ Как запустить?
 
-### Вариант 1: Быстрый запуск
+### Первая установка:
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Запуск:
+
+**Вариант 1: Быстрый запуск**
 ```bash
 ./run.sh
 ```
 
-### Вариант 2: Вручную
+**Вариант 2: Вручную**
 ```bash
 source venv/bin/activate
 python parse_pdfs.py
