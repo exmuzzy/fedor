@@ -63,6 +63,23 @@ def is_pipe(nomenclature):
     return 'труба' in nomenclature_lower or 'футляр' in nomenclature_lower
 
 
+def is_pipe_or_fitting(nomenclature):
+    """Проверка, является ли номенклатура трубой или фитингом"""
+    if not nomenclature or pd.isna(nomenclature):
+        return False
+    
+    nomenclature_lower = str(nomenclature).lower()
+    
+    # Трубы
+    if 'труба' in nomenclature_lower or 'футляр' in nomenclature_lower:
+        return True
+    
+    # Фитинги (только указанные)
+    fittings = ['муфта', 'отвод', 'втулка', 'фланец']
+    
+    return any(fitting in nomenclature_lower for fitting in fittings)
+
+
 def parse_pdf_file(pdf_path):
     """
     Парсинг одного PDF файла и извлечение данных
@@ -141,6 +158,10 @@ def parse_pdf_file(pdf_path):
                         
                         # Очистка данных
                         nomenclature = str(nomenclature).strip()
+                        
+                        # Фильтр: оставляем только трубы и фитинги
+                        if not is_pipe_or_fitting(nomenclature):
+                            continue
                         
                         # Парсинг количества
                         try:
