@@ -117,13 +117,13 @@ def parse_pdf_file(pdf_path):
                     for col_idx, header in enumerate(header_row):
                         if not header:
                             continue
-                        header_str = str(header).strip()
+                        header_str = str(header).strip().replace('\n', '').replace(' ', '').replace('-', '')
                         
-                        if 'Наименование' in header_str and 'техническ' in header_str.lower():
+                        if 'Наименование' in str(header) and 'техническ' in str(header).lower():
                             name_col = col_idx
-                        elif 'Количество' in header_str:
+                        elif 'колич' in header_str.lower() or 'количество' in header_str.lower():
                             qty_col = col_idx
-                        elif 'Завод' in header_str or 'изготовитель' in header_str.lower():
+                        elif 'Завод' in str(header) or 'изготовитель' in str(header).lower():
                             manufacturer_col = col_idx
                     
                     # Извлекаем данные из строк таблицы
