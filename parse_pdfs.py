@@ -129,6 +129,7 @@ def parse_pdf_file(pdf_path):
                     # Определяем индексы нужных столбцов
                     name_col = None
                     qty_col = None
+                    unit_qty_col = None  # Столбец где единица и количество вместе
                     manufacturer_col = None
                     
                     for col_idx, header in enumerate(header_row):
@@ -138,18 +139,31 @@ def parse_pdf_file(pdf_path):
                         
                         if 'Наименование' in str(header) and 'техническ' in str(header).lower():
                             name_col = col_idx
-                        elif 'колич' in header_str.lower() or 'количество' in header_str.lower():
-                            qty_col = col_idx
+                        elif 'коли' in header_str.lower() or 'количество' in header_str.lower():
+                            # Проверяем, не объединен ли столбец с единицей измерения
+                            if 'единиц' in header_str.lower() or 'измер' in header_str.lower():
+                                unit_qty_col = col_idx
+                            else:
+                                qty_col = col_idx
                         elif 'Завод' in str(header) or 'изготовитель' in str(header).lower():
                             manufacturer_col = col_idx
                     
                     # Извлекаем данные из строк таблицы
                     for row in table[header_idx + 1:]:
-                        if not row or len(row) <= max(filter(None, [name_col, qty_col, manufacturer_col])):
+                        cols_to_check = [c for c in [name_col, qty_col, unit_qty_col, manufacturer_col] if c is not None]
+                        if not row or not cols_to_check or len(row) <= max(cols_to_check):
                             continue
                         
                         nomenclature = row[name_col] if name_col is not None else ''
-                        quantity = row[qty_col] if qty_col is not None else ''
+                        
+                        # Извлекаем количество (из отдельного столбца или объединенного)
+                        quantity = ''
+                        if qty_col is not None and qty_col < len(row):
+                            quantity = row[qty_col]
+                        elif unit_qty_col is not None and unit_qty_col < len(row):
+                            # Количество объединено с единицей измерения
+                            quantity = row[unit_qty_col]
+                        
                         manufacturer = row[manufacturer_col] if manufacturer_col is not None else ''
                         
                         # Пропускаем пустые строки
